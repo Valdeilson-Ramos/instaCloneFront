@@ -13,29 +13,29 @@ class Feed extends Component {
   state = {
     feed: []
   };
-  async componentDidMount() {
-    this.registerToSocket();
+  async componentDidMount() {       //monta o componente assim que ele é criado ou alterado
+    this.registerToSocket();        //chama a função que aciona o socket
     const response = await api.get("posts");
 
     this.setState({ feed: response.data });
   }
-  registerToSocket = () => {
+  registerToSocket = () => {        //função que define a sincronização em tempo real    
     const socket = io("http://localhost:3333");
     socket.on("post", newPost => {
       this.setState({
-        feed: [newPost, ...this.state.feed]
+        feed: [newPost, ...this.state.feed]  //cria um novo feed alocando no inicio da lista e repetindo os demais
       });
-      socket.on("like", likedPost => {
+    });
+    socket.on("like", likedPost => {
         this.setState({
           feed: this.state.feed.map(post =>
             post._id === likedPost._id ? likedPost : post
           )
         });
-      });
     });
   };
-  handLike = id => {
-    api.post(`/posts/${id}/like`);
+  handleLike = id => {
+    api.post(`/posts/${id}/like`);    //metodo para possibilitar a manipulação dos likes
   };
   render() {
     return (
@@ -52,7 +52,7 @@ class Feed extends Component {
             <img src={`http://localhost:3333/files/${post.image}`} />
             <footer>
               <div className="actions">
-                <button type="button" onClick={() => this.handLike(post._id)}>
+                <button type="button" onClick={() => this.handleLike(post._id)}>  
                   <img src={like} alt="" />
                 </button>
                 <img src={comment} alt="" />
